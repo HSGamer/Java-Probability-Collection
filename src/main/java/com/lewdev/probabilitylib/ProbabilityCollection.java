@@ -1,32 +1,27 @@
 /*
-* Copyright (c) 2020 Lewys Davies
-* 
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*/
+ * Copyright (c) 2020 Lewys Davies
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.lewdev.probabilitylib;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NavigableSet;
-import java.util.Objects;
-import java.util.SplittableRandom;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * ProbabilityCollection for retrieving random elements based on probability.
@@ -44,11 +39,10 @@ import java.util.TreeSet;
  * selected than those with smaller probability.
  * </p>
  * </ul>
- * 
- * @author Lewys Davies
- * @version 0.8
  *
  * @param <E> Type of elements
+ * @author Lewys Davies
+ * @version 0.8
  */
 public final class ProbabilityCollection<E> {
 
@@ -80,7 +74,6 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
-     * @param <E> object
      * @return True if collection contains the object, else False
      * @throws IllegalArgumentException if object is null
      */
@@ -101,10 +94,9 @@ public final class ProbabilityCollection<E> {
 
     /**
      * Add an object to this collection
-     * 
-     * @param <E>         object. Not null.
+     *
+     * @param object      object. Not null.
      * @param probability share. Must be greater than 0.
-     * 
      * @throws IllegalArgumentException if object is null
      * @throws IllegalArgumentException if probability <= 0
      */
@@ -117,7 +109,7 @@ public final class ProbabilityCollection<E> {
             throw new IllegalArgumentException("Probability must be greater than 0");
         }
 
-        ProbabilitySetElement<E> entry = new ProbabilitySetElement<E>(object, probability);
+        ProbabilitySetElement<E> entry = new ProbabilitySetElement<>(object, probability);
         entry.setIndex(this.totalProbability + 1);
 
         this.collection.add(entry);
@@ -126,10 +118,9 @@ public final class ProbabilityCollection<E> {
 
     /**
      * Remove a object from this collection
-     * 
-     * @param <E> object
+     *
+     * @param object object
      * @return True if object was removed, else False.
-     * 
      * @throws IllegalArgumentException if object is null
      */
     public boolean remove(E object) {
@@ -171,9 +162,8 @@ public final class ProbabilityCollection<E> {
 
     /**
      * Get a random object from this collection, based on probability.
-     * 
+     *
      * @return <E> Random object
-     * 
      * @throws IllegalStateException if this collection is empty
      */
     public E get() {
@@ -184,7 +174,7 @@ public final class ProbabilityCollection<E> {
         ProbabilitySetElement<E> toFind = new ProbabilitySetElement<>(null, 0);
         toFind.setIndex(this.random.nextInt(1, this.totalProbability + 1));
 
-        return Objects.requireNonNull(this.collection.floor(toFind).getObject());
+        return Objects.requireNonNull(this.collection.floor(toFind)).getObject();
     }
 
     /**
@@ -197,24 +187,23 @@ public final class ProbabilityCollection<E> {
     /**
      * Used internally to store information about a object's state in a collection.
      * Specifically, the probability and index within the collection.
-     * 
+     * <p>
      * Indexes refer to the start position of this element's "block" of space. The
      * space between element "block"s represents their probability of being selected
-     * 
-     * @author Lewys Davies
      *
      * @param <T> Type of element
+     * @author Lewys Davies
      */
-    public final static class ProbabilitySetElement<T> {
+    public static final class ProbabilitySetElement<T> {
         private final T object;
         private final int probability;
         private int index;
-        
+
         /**
-         * @param <T>         object
+         * @param object      object
          * @param probability share within the collection
          */
-        protected ProbabilitySetElement(T object, int probability) {
+        private ProbabilitySetElement(T object, int probability) {
             this.object = object;
             this.probability = probability;
         }
