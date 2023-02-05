@@ -22,6 +22,7 @@
 package com.lewdev.probabilitylib;
 
 import java.util.*;
+import java.util.function.IntUnaryOperator;
 
 /**
  * ProbabilityCollection for retrieving random elements based on probability.
@@ -46,20 +47,42 @@ import java.util.*;
  */
 public final class ProbabilityCollection<E> {
 
-    private final NavigableSet<ProbabilitySetElement<E>> collection;
-    private final SplittableRandom random = new SplittableRandom();
-
-    private int totalProbability;
+    private final NavigableSet<ProbabilitySetElement<E>> collection = new TreeSet<>(Comparator.comparingInt(ProbabilitySetElement::getIndex));
+    private final IntUnaryOperator randomOperator;
+    private int totalProbability = 0;
 
     /**
-     * Construct a new Probability Collection
+     * Create a new ProbabilityCollection with a custom random number generator
+     *
+     * @param randomNumberGenerator Random number generator that returns a random number between 0 and n-1
      */
-    public ProbabilityCollection() {
-        this.collection = new TreeSet<>(Comparator.comparingInt(ProbabilitySetElement::getIndex));
-        this.totalProbability = 0;
+    public ProbabilityCollection(IntUnaryOperator randomNumberGenerator) {
+        this.randomOperator = randomNumberGenerator;
+    }
+
+    private ProbabilityCollection(SplittableRandom random) {
+        this(random::nextInt);
     }
 
     /**
+     * Create a new ProbabilityCollection with a default random number generator
+     */
+    public ProbabilityCollection() {
+        this(new SplittableRandom());
+    }
+
+    /**
+     * Create a new ProbabilityCollection with a default random number generator
+     *
+     * @param seed Seed for random number generator
+     */
+    public ProbabilityCollection(long seed) {
+        this(new SplittableRandom(seed));
+    }
+
+    /**
+     * Get the total of objects in this collection
+     *
      * @return Number of objects inside the collection
      */
     public int size() {
@@ -67,6 +90,8 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
+     * Check if collection is empty
+     *
      * @return True if collection contains no elements, else False
      */
     public boolean isEmpty() {
@@ -74,6 +99,8 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
+     * Check if collection contains an object
+     *
      * @return True if collection contains the object, else False
      * @throws IllegalArgumentException if object is null
      */
@@ -86,6 +113,8 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
+     * Get the iterator for this collection
+     *
      * @return Iterator over this collection
      */
     public Iterator<ProbabilitySetElement<E>> iterator() {
@@ -117,7 +146,7 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
-     * Remove a object from this collection
+     * Remove an object from this collection
      *
      * @param object object
      * @return True if object was removed, else False.
@@ -172,12 +201,14 @@ public final class ProbabilityCollection<E> {
         }
 
         ProbabilitySetElement<E> toFind = new ProbabilitySetElement<>(null, 0);
-        toFind.setIndex(this.random.nextInt(1, this.totalProbability + 1));
+        toFind.setIndex(this.randomOperator.applyAsInt(this.totalProbability) + 1);
 
         return Objects.requireNonNull(this.collection.floor(toFind)).getObject();
     }
 
     /**
+     * Get the total probability of all elements in this collection
+     *
      * @return Sum of all element's probability
      */
     public int getTotalProbability() {
@@ -185,7 +216,7 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
-     * Used internally to store information about a object's state in a collection.
+     * Used internally to store information about an object's state in a collection.
      * Specifically, the probability and index within the collection.
      * <p>
      * Indexes refer to the start position of this element's "block" of space. The
@@ -200,6 +231,8 @@ public final class ProbabilityCollection<E> {
         private int index;
 
         /**
+         * Create a new pair of object and probability
+         *
          * @param object      object
          * @param probability share within the collection
          */
@@ -209,6 +242,8 @@ public final class ProbabilityCollection<E> {
         }
 
         /**
+         * Get the object
+         *
          * @return <T> The actual object
          */
         public T getObject() {
@@ -216,6 +251,8 @@ public final class ProbabilityCollection<E> {
         }
 
         /**
+         * Get the probability share of this object
+         *
          * @return Probability share in this collection
          */
         public int getProbability() {
