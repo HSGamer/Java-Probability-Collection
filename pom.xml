@@ -57,6 +57,15 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>pw.krejci</groupId>
+				<artifactId>jmh-maven-plugin</artifactId>
+				<version>0.2.2</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
