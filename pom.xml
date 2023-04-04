@@ -5,7 +5,7 @@
 
 	<groupId>com.lewdev</groupId>
 	<artifactId>probability-lib</artifactId>
-	<version>0.9</version>
+	<version>0.10-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>probability-lib</name>
