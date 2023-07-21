@@ -109,7 +109,12 @@ public final class ProbabilityCollection<E> {
             throw new IllegalArgumentException("Cannot check if null object is contained in this collection");
         }
 
-        return this.collection.stream().anyMatch(entry -> entry.getObject().equals(object));
+        for (ProbabilitySetElement<E> entry : this.collection) {
+            if (entry.getObject().equals(object)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
