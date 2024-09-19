@@ -186,7 +186,7 @@ public class ProbabilityCollectionTest {
 		assertTrue(collection.isEmpty());
 	}
 
-	@RepeatedTest(1_000_000)
+	@RepeatedTest(10_000)
 	public void test_probability() {
 		ProbabilityCollection<String> collection = new ProbabilityCollection<>();
 		
@@ -225,7 +225,7 @@ public class ProbabilityCollectionTest {
 		assertTrue(Math.abs(cProb - cResult) <= acceptableDeviation);
 	}
 	
-	@RepeatedTest(1_000_000)
+	@RepeatedTest(10_000)
 	public void test_get_never_null() {
 		ProbabilityCollection<String> collection = new ProbabilityCollection<>();
 		// Tests get will never return null

@@ -10,7 +10,7 @@ public class ExampleApp {
 		collection.add("C", 10);
 		
 		int a = 0, b = 0, c = 0;
-		int totalGets = 100000;
+		int totalGets = 10000000;
 		
 		for(int i = 0; i < totalGets; i++) {
 			String random = collection.get();

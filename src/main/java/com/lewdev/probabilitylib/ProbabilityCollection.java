@@ -46,8 +46,7 @@ import java.util.function.IntUnaryOperator;
  * @version 0.8
  */
 public final class ProbabilityCollection<E> {
-
-    private final NavigableSet<ProbabilitySetElement<E>> collection = new TreeSet<>(Comparator.comparingInt(ProbabilitySetElement::getIndex));
+    private final List<ProbabilitySetElement<E>> collection = new LinkedList<>();
     private final IntUnaryOperator randomOperator;
     private int totalProbability = 0;
 
@@ -144,7 +143,6 @@ public final class ProbabilityCollection<E> {
         }
 
         ProbabilitySetElement<E> entry = new ProbabilitySetElement<>(object, probability);
-        entry.setIndex(this.totalProbability + 1);
 
         this.collection.add(entry);
         this.totalProbability += probability;
@@ -175,14 +173,6 @@ public final class ProbabilityCollection<E> {
             }
         }
 
-        // Recalculate remaining elements "block" of space: i.e 1-5, 6-10, 11-14
-        if (removed) {
-            int previousIndex = 0;
-            for (ProbabilitySetElement<E> entry : this.collection) {
-                previousIndex = entry.setIndex(previousIndex + 1) + (entry.getProbability() - 1);
-            }
-        }
-
         return removed;
     }
 
@@ -205,10 +195,17 @@ public final class ProbabilityCollection<E> {
             throw new IllegalStateException("Cannot get an object out of a empty collection");
         }
 
-        ProbabilitySetElement<E> toFind = new ProbabilitySetElement<>(null, 0);
-        toFind.setIndex(this.randomOperator.applyAsInt(this.totalProbability) + 1);
+        int random = this.randomOperator.applyAsInt(this.totalProbability);
 
-        return Objects.requireNonNull(this.collection.floor(toFind)).getObject();
+        int index = 0;
+        for (ProbabilitySetElement<E> entry : this.collection) {
+            index += entry.getProbability();
+            if (random < index) {
+                return entry.getObject();
+            }
+        }
+
+        throw new IllegalStateException("Failed to get an object from the collection");
     }
 
     /**
@@ -233,7 +230,6 @@ public final class ProbabilityCollection<E> {
     public static final class ProbabilitySetElement<T> {
         private final T object;
         private final int probability;
-        private int index;
 
         /**
          * Create a new pair of object and probability
@@ -262,17 +258,6 @@ public final class ProbabilityCollection<E> {
          */
         public int getProbability() {
             return this.probability;
-        }
-
-        // Used internally, see this class's documentation
-        private int getIndex() {
-            return this.index;
-        }
-
-        // Used Internally, see this class's documentation
-        private int setIndex(int index) {
-            this.index = index;
-            return this.index;
         }
     }
 }
