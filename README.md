@@ -1,5 +1,5 @@
 # Java-Probability-Collection
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lewysDavies/Java-Probability-Collection/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lewysDavies/Java-Probability-Collection/?branch=master) [![Build Status](https://scrutinizer-ci.com/g/lewysDavies/Java-Probability-Collection/badges/build.png?b=master)](https://scrutinizer-ci.com/g/lewysDavies/Java-Probability-Collection/build-status/master) [![](https://jitpack.io/v/lewysDavies/Java-Probability-Collection.svg)](https://jitpack.io/#lewysDavies/Java-Probability-Collection)<br>
+[![](https://jitpack.io/v/HSGamer/Java-Probability-Collection.svg)](https://jitpack.io/#HSGamer/Java-Probability-Collection)<br>
 Generic and Highly Optimised Java Data-Structure for Retrieving Random Elements with Probability
 
 # Usage
