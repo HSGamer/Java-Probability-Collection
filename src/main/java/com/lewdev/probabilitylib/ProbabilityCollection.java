@@ -21,11 +21,10 @@
  */
 package com.lewdev.probabilitylib;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SplittableRandom;
+import java.util.*;
 import java.util.function.IntUnaryOperator;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 /**
  * ProbabilityCollection for retrieving random elements based on probability.
@@ -50,36 +49,23 @@ import java.util.function.IntUnaryOperator;
  */
 public final class ProbabilityCollection<E> {
     private final List<ProbabilitySetElement<E>> collection = new LinkedList<>();
-    private final IntUnaryOperator randomOperator;
+    private IntUnaryOperator randomOperator;
     private int totalProbability = 0;
 
     /**
-     * Create a new ProbabilityCollection with a custom random number generator
-     *
-     * @param randomNumberGenerator Random number generator that returns a random number between 0 and n-1
-     */
-    public ProbabilityCollection(IntUnaryOperator randomNumberGenerator) {
-        this.randomOperator = randomNumberGenerator;
-    }
-
-    private ProbabilityCollection(SplittableRandom random) {
-        this(random::nextInt);
-    }
-
-    /**
-     * Create a new ProbabilityCollection with a default random number generator
+     * Create a new ProbabilityCollection
      */
     public ProbabilityCollection() {
-        this(new SplittableRandom());
     }
 
     /**
-     * Create a new ProbabilityCollection with a default random number generator
+     * Create a new ProbabilityCollection with a collection of elements
      *
-     * @param seed Seed for random number generator
+     * @param collection Collection of elements
      */
-    public ProbabilityCollection(long seed) {
-        this(new SplittableRandom(seed));
+    public ProbabilityCollection(Collection<ProbabilitySetElement<E>> collection) {
+        this.collection.addAll(collection);
+        this.totalProbability = collection.stream().mapToInt(ProbabilitySetElement::getProbability).sum();
     }
 
     /**
@@ -91,6 +77,24 @@ public final class ProbabilityCollection<E> {
         this.randomOperator = other.randomOperator;
         this.totalProbability = other.totalProbability;
         this.collection.addAll(other.collection);
+    }
+
+    /**
+     * Create the collector for this collection
+     *
+     * @param <E> Type of elements
+     * @return Collector for this collection
+     */
+    public static <E> Collector<ProbabilitySetElement<E>, List<ProbabilitySetElement<E>>, ProbabilityCollection<E>> collector() {
+        return Collector.of(
+                ArrayList::new,
+                List::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                },
+                ProbabilityCollection::new
+        );
     }
 
     /**
@@ -199,6 +203,28 @@ public final class ProbabilityCollection<E> {
     }
 
     /**
+     * Get the random operator for this collection
+     *
+     * @return Random operator
+     */
+    private IntUnaryOperator getRandomOperator() {
+        if (this.randomOperator == null) {
+            SplittableRandom splittableRandom = new SplittableRandom();
+            this.randomOperator = splittableRandom::nextInt;
+        }
+        return randomOperator;
+    }
+
+    /**
+     * Set the random operator for this collection
+     *
+     * @param randomOperator Random operator
+     */
+    public void setRandomOperator(IntUnaryOperator randomOperator) {
+        this.randomOperator = randomOperator;
+    }
+
+    /**
      * Get a random object from this collection, based on probability.
      *
      * @return <E> Random object
@@ -209,7 +235,7 @@ public final class ProbabilityCollection<E> {
             throw new IllegalStateException("Cannot get an object out of a empty collection");
         }
 
-        int random = this.randomOperator.applyAsInt(this.totalProbability);
+        int random = getRandomOperator().applyAsInt(this.totalProbability);
 
         int index = 0;
         for (ProbabilitySetElement<E> entry : this.collection) {
@@ -238,6 +264,15 @@ public final class ProbabilityCollection<E> {
      */
     public ProbabilityCollection<E> copy() {
         return new ProbabilityCollection<>(this);
+    }
+
+    /**
+     * Get a stream of elements in this collection
+     *
+     * @return Stream of elements
+     */
+    public Stream<ProbabilitySetElement<E>> stream() {
+        return this.collection.stream();
     }
 
     /**
