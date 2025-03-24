@@ -47,9 +47,9 @@ or for the fancy users, you could use Maven:<br>
 **Dependency:**
 ```
 <dependency>
-    <groupId>com.github.lewysDavies</groupId>
+    <groupId>com.github.HSGamer</groupId>
     <artifactId>Java-Probability-Collection</artifactId>
-    <version>v0.8</version>
+    <version>0.11</version>
 </dependency>
 ```
 **Maven Shade This Dependency:**
