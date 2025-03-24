@@ -21,7 +21,10 @@
  */
 package com.lewdev.probabilitylib;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.SplittableRandom;
 import java.util.function.IntUnaryOperator;
 
 /**
@@ -77,6 +80,17 @@ public final class ProbabilityCollection<E> {
      */
     public ProbabilityCollection(long seed) {
         this(new SplittableRandom(seed));
+    }
+
+    /**
+     * Create a copy of another ProbabilityCollection
+     *
+     * @param other Collection to copy
+     */
+    public ProbabilityCollection(ProbabilityCollection<E> other) {
+        this.randomOperator = other.randomOperator;
+        this.totalProbability = other.totalProbability;
+        this.collection.addAll(other.collection);
     }
 
     /**
@@ -215,6 +229,15 @@ public final class ProbabilityCollection<E> {
      */
     public int getTotalProbability() {
         return this.totalProbability;
+    }
+
+    /**
+     * Create a copy of this collection
+     *
+     * @return ProbabilityCollection with the same elements and probabilities
+     */
+    public ProbabilityCollection<E> copy() {
+        return new ProbabilityCollection<>(this);
     }
 
     /**
