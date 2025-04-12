@@ -23,6 +23,7 @@ package com.lewdev.probabilitylib;
 
 import java.util.*;
 import java.util.function.IntUnaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -48,7 +49,7 @@ import java.util.stream.Stream;
  * @version 0.8
  */
 public final class ProbabilityCollection<E> {
-    private final List<ProbabilitySetElement<E>> collection = new LinkedList<>();
+    private final List<AbstractMap.SimpleImmutableEntry<E, Integer>> collection = new LinkedList<>();
     private IntUnaryOperator randomOperator;
     private int totalProbability = 0;
 
@@ -63,9 +64,9 @@ public final class ProbabilityCollection<E> {
      *
      * @param collection Collection of elements
      */
-    public ProbabilityCollection(Collection<ProbabilitySetElement<E>> collection) {
+    public ProbabilityCollection(Collection<AbstractMap.SimpleImmutableEntry<E, Integer>> collection) {
         this.collection.addAll(collection);
-        this.totalProbability = collection.stream().mapToInt(ProbabilitySetElement::getProbability).sum();
+        this.totalProbability = collection.stream().mapToInt(Map.Entry::getValue).sum();
     }
 
     /**
@@ -85,7 +86,7 @@ public final class ProbabilityCollection<E> {
      * @param <E> Type of elements
      * @return Collector for this collection
      */
-    public static <E> Collector<ProbabilitySetElement<E>, List<ProbabilitySetElement<E>>, ProbabilityCollection<E>> collector() {
+    public static <E> Collector<AbstractMap.SimpleImmutableEntry<E, Integer>, List<AbstractMap.SimpleImmutableEntry<E, Integer>>, ProbabilityCollection<E>> collector() {
         return Collector.of(
                 ArrayList::new,
                 List::add,
@@ -95,6 +96,20 @@ public final class ProbabilityCollection<E> {
                 },
                 ProbabilityCollection::new
         );
+    }
+
+    /**
+     * Filter the collection based on a predicate
+     *
+     * @param predicate Predicate to filter the collection
+     * @return Filtered collection
+     */
+    public ProbabilityCollection<E> filter(Predicate<AbstractMap.SimpleImmutableEntry<E, Integer>> predicate) {
+        ProbabilityCollection<E> filtered = this.stream()
+                .filter(predicate)
+                .collect(collector());
+        filtered.setRandomOperator(this.getRandomOperator());
+        return filtered;
     }
 
     /**
@@ -126,8 +141,8 @@ public final class ProbabilityCollection<E> {
             throw new IllegalArgumentException("Cannot check if null object is contained in this collection");
         }
 
-        for (ProbabilitySetElement<E> entry : this.collection) {
-            if (entry.getObject().equals(object)) {
+        for (AbstractMap.SimpleImmutableEntry<E, Integer> entry : this.collection) {
+            if (entry.getKey().equals(object)) {
                 return true;
             }
         }
@@ -139,7 +154,7 @@ public final class ProbabilityCollection<E> {
      *
      * @return Iterator over this collection
      */
-    public Iterator<ProbabilitySetElement<E>> iterator() {
+    public Iterator<AbstractMap.SimpleImmutableEntry<E, Integer>> iterator() {
         return this.collection.iterator();
     }
 
@@ -160,7 +175,7 @@ public final class ProbabilityCollection<E> {
             throw new IllegalArgumentException("Probability must be greater than 0");
         }
 
-        ProbabilitySetElement<E> entry = new ProbabilitySetElement<>(object, probability);
+        AbstractMap.SimpleImmutableEntry<E, Integer> entry = new AbstractMap.SimpleImmutableEntry<>(object, probability);
 
         this.collection.add(entry);
         this.totalProbability += probability;
@@ -178,14 +193,14 @@ public final class ProbabilityCollection<E> {
             throw new IllegalArgumentException("Cannot remove null object");
         }
 
-        Iterator<ProbabilitySetElement<E>> it = this.iterator();
+        Iterator<AbstractMap.SimpleImmutableEntry<E, Integer>> it = this.iterator();
         boolean removed = false;
 
         // Remove all instances of the object
         while (it.hasNext()) {
-            ProbabilitySetElement<E> entry = it.next();
-            if (entry.getObject().equals(object)) {
-                this.totalProbability -= entry.getProbability();
+            AbstractMap.SimpleImmutableEntry<E, Integer> entry = it.next();
+            if (entry.getKey().equals(object)) {
+                this.totalProbability -= entry.getValue();
                 it.remove();
                 removed = true;
             }
@@ -238,10 +253,10 @@ public final class ProbabilityCollection<E> {
         int random = getRandomOperator().applyAsInt(this.totalProbability);
 
         int index = 0;
-        for (ProbabilitySetElement<E> entry : this.collection) {
-            index += entry.getProbability();
+        for (AbstractMap.SimpleImmutableEntry<E, Integer> entry : this.collection) {
+            index += entry.getValue();
             if (random < index) {
-                return entry.getObject();
+                return entry.getKey();
             }
         }
 
@@ -271,51 +286,7 @@ public final class ProbabilityCollection<E> {
      *
      * @return Stream of elements
      */
-    public Stream<ProbabilitySetElement<E>> stream() {
+    public Stream<AbstractMap.SimpleImmutableEntry<E, Integer>> stream() {
         return this.collection.stream();
-    }
-
-    /**
-     * Used internally to store information about an object's state in a collection.
-     * Specifically, the probability and index within the collection.
-     * <p>
-     * Indexes refer to the start position of this element's "block" of space. The
-     * space between element "block"s represents their probability of being selected
-     *
-     * @param <T> Type of element
-     * @author Lewys Davies
-     */
-    public static final class ProbabilitySetElement<T> {
-        private final T object;
-        private final int probability;
-
-        /**
-         * Create a new pair of object and probability
-         *
-         * @param object      object
-         * @param probability share within the collection
-         */
-        private ProbabilitySetElement(T object, int probability) {
-            this.object = object;
-            this.probability = probability;
-        }
-
-        /**
-         * Get the object
-         *
-         * @return <T> The actual object
-         */
-        public T getObject() {
-            return this.object;
-        }
-
-        /**
-         * Get the probability share of this object
-         *
-         * @return Probability share in this collection
-         */
-        public int getProbability() {
-            return this.probability;
-        }
     }
 }
